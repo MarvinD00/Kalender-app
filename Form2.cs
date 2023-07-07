@@ -10,6 +10,9 @@ using System.Threading.Tasks;
 using System.Windows.Forms;
 using System.IO;
 using System.Reflection;
+using static System.Net.Mime.MediaTypeNames;
+using System.Data.Common;
+using System.Xml;
 
 namespace Kalender_app
 {
@@ -24,6 +27,7 @@ namespace Kalender_app
         {
             updateGridViewData();
             addContextMenuStrip();
+            tableLayoutPanelInit(); 
         }
 
         private void button1_Click(object sender, EventArgs e)
@@ -79,6 +83,47 @@ namespace Kalender_app
             }
         }
 
+        private void tableLayoutPanelInit()
+        {
+
+            int cellnumber = 1;
+            
+            //add a panel to each cell of tablelayout
+            for (int row = 0; row < tableLayoutPanel1.RowCount; row++)
+            {
+                for (int column = 0; column < tableLayoutPanel1.ColumnCount; column++)
+                {
+                    Panel panel = new Panel();
+
+                    tableLayoutPanel1.Controls.Add(panel, column, row);
+                }
+            }
+            
+            //get selected month and first Day & last day of month
+            DateTime selectedMonth = DateTime.Now;
+            int firstDayOfWeekOfMonth = (int)selectedMonth.DayOfWeek;
+            int lastDayOfMonth = DateTime.DaysInMonth(selectedMonth.Year, selectedMonth.Month);
+
+            //write number of day in each cell
+            for (int row = 0; row < tableLayoutPanel1.RowCount; row++)
+            {
+                for (int column = 0; column < tableLayoutPanel1.ColumnCount; column++)
+                {
+                    if ((row == 0 && column >= firstDayOfWeekOfMonth) || row > 0 && (cellnumber <= lastDayOfMonth))
+                    {
+                        Control control = tableLayoutPanel1.GetControlFromPosition(column, row);
+
+
+
+                        Label label = new Label();
+                        label.Text = cellnumber.ToString();
+
+                        control.Controls.Add(label);
+                        cellnumber++;
+                    }
+                }
+            }
+        }
         private void DeleteRowMenuItem_Click(object sender, EventArgs e)
         {
             if (dataGridView1.SelectedRows.Count > 0)
@@ -107,7 +152,7 @@ namespace Kalender_app
 
         private void Form2_Deactivate(object sender, EventArgs e)
         {
-            Application.Exit();    
+            System.Windows.Forms.Application.Exit();    
         }
     }
 }
