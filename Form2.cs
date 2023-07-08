@@ -13,6 +13,8 @@ using System.Reflection;
 using static System.Net.Mime.MediaTypeNames;
 using System.Data.Common;
 using System.Xml;
+using System.Reflection.Emit;
+using System.Runtime.Remoting.Metadata.W3cXsd2001;
 
 namespace Kalender_app
 {
@@ -27,7 +29,8 @@ namespace Kalender_app
         {
             updateGridViewData();
             addContextMenuStrip();
-            tableLayoutPanelInit(); 
+            tableLayoutPanelInit();
+            comboBoxInit();
         }
 
         private void button1_Click(object sender, EventArgs e)
@@ -85,7 +88,6 @@ namespace Kalender_app
 
         private void tableLayoutPanelInit()
         {
-
             int cellnumber = 1;
             
             //add a panel to each cell of tablelayout
@@ -100,30 +102,89 @@ namespace Kalender_app
             }
             
             //get selected month and first Day & last day of month
-            DateTime selectedMonth = DateTime.Now;
-            int firstDayOfWeekOfMonth = (int)selectedMonth.DayOfWeek;
-            int lastDayOfMonth = DateTime.DaysInMonth(selectedMonth.Year, selectedMonth.Month);
+            DateTime dateNow = DateTime.Now;
+            int firstDayofMonth = (int)dateNow.DayOfWeek;
+            if (firstDayofMonth == 0)
+            {
+                firstDayofMonth = 7;
+            }
+            int lastDayOfMonth = DateTime.DaysInMonth(dateNow.Year, dateNow.Month);
 
             //write number of day in each cell
             for (int row = 0; row < tableLayoutPanel1.RowCount; row++)
             {
                 for (int column = 0; column < tableLayoutPanel1.ColumnCount; column++)
                 {
-                    if ((row == 0 && column >= firstDayOfWeekOfMonth) || row > 0 && (cellnumber <= lastDayOfMonth))
+                    Control control = tableLayoutPanel1.GetControlFromPosition(column, row);
+                    System.Windows.Forms.Label label = new System.Windows.Forms.Label();
+                    if ((row == 0 && column >= firstDayofMonth - 1) || row > 0 && (cellnumber <= lastDayOfMonth))
                     {
-                        Control control = tableLayoutPanel1.GetControlFromPosition(column, row);
+                        
+                        label.Text = cellnumber.ToString();
+                        cellnumber++;
+                    }
+                    else
+                    {
+                        label.Text = "";
+                    }
+                    control.Controls.Add(label);
+                }
+            }
+        }
 
+        private void tableLayoutPanelChange()
+        {
+            int cellnumber = 1;
 
+            
+            //get selected month and first Day & last day of month
+            DateTime dateNow = DateTime.Now;
+            int year;
+            int month;
+            if(comboBox1.SelectedIndex == -1)
+            {
+                year = dateNow.Year;
+            } else
+            {
+                year = dateNow.Year + comboBox1.SelectedIndex;
+            }
+            if (comboBox2.SelectedIndex == -1)
+            {
+                month = dateNow.Month;
+            }else
+            {
+                month = comboBox2.SelectedIndex+1;
+            }
 
-                        Label label = new Label();
+            DateTime firstDayOfMonth = new DateTime(year, month, 1);
+            int firstDayofMonth = (int)firstDayOfMonth.DayOfWeek;
+            if (firstDayofMonth == 0)
+            {
+                firstDayofMonth = 7;
+            }
+            int lastDayOfMonth = DateTime.DaysInMonth(dateNow.Year, month);
+
+            //write number of day in each cell
+            for (int row = 0; row < tableLayoutPanel1.RowCount; row++)
+            {
+                for (int column = 0; column < tableLayoutPanel1.ColumnCount; column++)
+                {
+                    Control control = tableLayoutPanel1.GetControlFromPosition(column, row);
+                    System.Windows.Forms.Label label = control.Controls.OfType<System.Windows.Forms.Label>().FirstOrDefault();
+                    if ((row == 0 && column >= firstDayofMonth - 1) || (row > 0 && cellnumber <= lastDayOfMonth))
+                    {
                         label.Text = cellnumber.ToString();
 
-                        control.Controls.Add(label);
                         cellnumber++;
+                    }
+                    else
+                    {
+                        label.Text = "";
                     }
                 }
             }
         }
+
         private void DeleteRowMenuItem_Click(object sender, EventArgs e)
         {
             if (dataGridView1.SelectedRows.Count > 0)
@@ -150,9 +211,28 @@ namespace Kalender_app
             }
         }
 
+        private void comboBoxInit()
+        {
+            int currentYear = DateTime.Now.Year;
+            for (int year = currentYear; year < currentYear+3; year++)
+            {
+                comboBox1.Items.Add(year);
+            }
+        }
+
         private void Form2_Deactivate(object sender, EventArgs e)
         {
             System.Windows.Forms.Application.Exit();    
+        }
+
+        private void comboBox2_SelectedIndexChanged(object sender, EventArgs e)
+        {
+            tableLayoutPanelChange();
+        }
+
+        private void comboBox1_SelectedValueChanged(object sender, EventArgs e)
+        {
+            tableLayoutPanelChange();
         }
     }
 }
