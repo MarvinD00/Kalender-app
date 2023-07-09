@@ -15,14 +15,16 @@ namespace Kalender_app
         public Role Role { get; set; }
         public String Vorname { get; set; }
         public String Nachname { get; set; }
+        public int personalNr { get; set; }
 
 
-        public User(String name, String password, Role role, String Vorname, String Nachname) {
+        public User(String name, String password, Role role, String Vorname, String Nachname, int PersonalNr) {
             this.userName = name;
             this.password = password;
             this.Role = role;
             this.Vorname = Vorname;
             this.Nachname = Nachname;
+            this.personalNr = PersonalNr;
         }
 
         public void saveUser()

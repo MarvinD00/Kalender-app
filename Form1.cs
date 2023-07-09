@@ -30,7 +30,7 @@ namespace Kalender_app
             if(userExists(userName, password))
             {
                 //new user object and set to LoggedInUser
-                User user = new User(userName, password, Role.Admin, "Admin", "User");
+                User user = new User(userName, password, Role.Admin, "Admin", "User",0);
                 UserContext.LoggedInUser = user;
 
                 //change form
